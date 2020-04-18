@@ -25,7 +25,7 @@ function cooldownbaby() {
     
   }, 120000);
 }
-// TODO: randomly select a message
+
 function generateVoiceMessage(usr) {
   const message = voicemessages[Math.floor(Math.random() * voicemessages.length)]; //tx stkvrflw
   return message.replace('XXX', usr) 
