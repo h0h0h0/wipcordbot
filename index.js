@@ -6,21 +6,47 @@ const https = require('https');
 const client = new Discord.Client();
 const http = require('http');
 
+// TODO: Setup webhook to recieve messages from the channel. This way cooldown can be smart
+// and the bot won't send messages unless there has been some activity in the channel that
+// is not bot activity.
+var voicemessages = [
+  'XXX is in the voice room',
+  'Wow, XXX is a big mouth and wants to voice chat',
+  'yall know who it is its ya boy XXX back in voice',
+  'someone is lonely oh its XXX'
+];
+
+var cooldown = false;
+// cool down messages for 120 seconds so people aren't spamming.
+function cooldownbaby() {
+  cooldown = true;
+  setTimeout(() => {
+    cooldown = false;
+    
+  }, 120000);
+}
+// TODO: randomly select a message
+function generateVoiceMessage(usr) {
+  const message = voicemessages[Math.floor(Math.random() * voicemessages.length)]; //tx stkvrflw
+  return message.replace('XXX', usr) 
+}
 
 function sendMessageToTelegram(msg) {
-  let telegramBotUrl = `https://api.telegram.org/${process.env.TELEGRAM_BOT}/sendMessage?chat_id=${process.env.TELEGRAM_CHAT_ID}&text=${msg}`
+  if (!cooldown) { 
+    let telegramBotUrl = `https://api.telegram.org/${process.env.TELEGRAM_BOT}/sendMessage?chat_id=${process.env.TELEGRAM_CHAT_ID}&text=${msg}`
 
-  https.get(telegramBotUrl, res => {
-    res.setEncoding("utf8");
-    let body = "";
-    res.on("data", data => {
-      body += data;
+    https.get(telegramBotUrl, res => {
+      res.setEncoding("utf8");
+      let body = "";
+      res.on("data", data => {
+        body += data;
+      });
+      res.on("end", () => {
+        body = JSON.parse(body);
+        console.log(body);
+      });
     });
-    res.on("end", () => {
-      body = JSON.parse(body);
-      console.log(body);
-    });
-  });
+  }
 };
 
 client.on('ready', () => {
@@ -44,17 +70,21 @@ client.on("voiceStateUpdate", function (oldVoiceState, newVoiceState) {
       return;
     }
   }
-  
-  if(oldVoiceState === undefined && newVoiceState !== undefined) {
-    
-    // User Joins a voice channel
-    talkChannel.send(newVoiceState.member.displayName + " entered vvv");
 
-  } else if(newVoiceState === undefined){
+  if (newVoiceState !== undefined && newVoiceState.channel) {
+    if (!cooldown) {
 
-    // User leaves a voice channel
-
+      let msg = generateVoiceMessage(newVoiceState.member.displayName);
+      //talkChannel.send(msg);
+      sendMessageToTelegram(msg);
+      cooldownbaby();
+    } else {
+      console.log("coolin down");
+    }
+        
   }
+  
+
   
   return;
 });
