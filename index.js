@@ -13,7 +13,10 @@ var voicemessages = [
   'XXX is in the voice room',
   'Wow, XXX is a big mouth and wants to voice chat',
   'yall know who it is its ya boy XXX back in voice',
-  'someone is lonely oh its XXX'
+  'someone is lonely oh its XXX',
+  'ohhh la la its XXX',
+  'Michael jordan? No its XXX',
+  'Trump Vs. XXX'
 ];
 
 var cooldown = false;
@@ -72,7 +75,13 @@ client.on("voiceStateUpdate", function (oldVoiceState, newVoiceState) {
   }
 
   if (newVoiceState !== undefined && newVoiceState.channel) {
-    if (!cooldown) {
+    var allowedChannel = false;
+
+    if (newVoiceState.channel.id === '508061365056045077') {
+      allowedChannel = true;
+    }
+
+    if (!cooldown && allowedChannel) {
 
       let msg = generateVoiceMessage(newVoiceState.member.displayName);
       //talkChannel.send(msg);
