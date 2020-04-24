@@ -53,7 +53,7 @@ function sendMessageToTelegram(msg) {
 };
 
 client.on('ready', () => {
-  client.user.setPresence({ game: { name: 'manhattan is dead' }, status: 'idle' });
+  client.user.setPresence({ game: { name: 'manhattan is dead' }, status: 'online' });
   console.log("DISCORD READY");
 });
           
